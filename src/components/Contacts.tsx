@@ -112,7 +112,7 @@ export function Contacts() {
                       <label className={`field ${flash ? 'field--flash' : ''}`}>
                         <span>Программа</span>
                         <select className="clay-inset" value={form.program} onChange={set('program')}>
-                          <option value="">Помогите выбрать</option>
+                          <option value="">Подобрать</option>
                           {programOptions.map((o) => (
                             <option key={o} value={o}>
                               {o}

@@ -124,6 +124,10 @@
   gap: 4px;
   padding: 6px;
   border-radius: 999px;
+  background: rgba(64, 93, 58, 0.1);
+  box-shadow:
+    inset 4px 5px 10px rgba(44, 66, 40, 0.14),
+    inset -4px -5px 10px rgba(255, 255, 255, 0.55);
 }
 .programs__durations button {
   position: relative;
@@ -133,7 +137,10 @@
   border-radius: 999px;
   font-weight: 800;
   cursor: pointer;
-  color: var(--ink-soft);
+  color: var(--forest);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .programs__durations button.is-active {
   color: #fff;

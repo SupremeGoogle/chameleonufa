@@ -83,6 +83,11 @@ button {
   color: inherit;
 }
 
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 h1,
 h2,
 h3,

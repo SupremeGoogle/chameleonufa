@@ -1,0 +1,124 @@
+.about__head {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 24px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.about__head .lead {
+  margin: 0 auto;
+}
+.about__fan {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: clamp(40px, 7vw, 90px) auto 0;
+  padding-bottom: 60px;
+  max-width: 1000px;
+}
+.about__photo {
+  margin: 0 -2.5%;
+  width: 34%;
+  padding: 12px;
+  border-radius: 34px;
+  --clay-bg: #fff;
+  cursor: pointer;
+}
+.about__photo img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+.about__team {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: clamp(30px, 6vw, 80px);
+  align-items: center;
+  margin-top: clamp(60px, 9vw, 120px);
+}
+.about__team-title {
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 800;
+  color: var(--forest);
+  margin-bottom: 30px;
+}
+.about__points {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.about__point {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px 14px 14px;
+  border-radius: 26px;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.35;
+}
+.about__point img {
+  width: 52px;
+  height: 52px;
+  flex: none;
+}
+.about__outro {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--orange-deep);
+}
+.about__team-visual {
+  position: relative;
+}
+.about__team-frame {
+  overflow: hidden;
+  border-radius: 40px;
+  aspect-ratio: 4 / 3.4;
+  box-shadow: 30px 40px 70px -20px rgba(64, 93, 58, 0.35);
+}
+.about__team-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.about__badge {
+  position: absolute;
+  left: -30px;
+  bottom: -30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px 14px 14px;
+  border-radius: 28px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.15;
+}
+.about__badge img {
+  width: 56px;
+}
+
+@media (max-width: 900px) {
+  .about__team {
+    grid-template-columns: 1fr;
+  }
+  .about__badge {
+    left: 10px;
+  }
+}
+@media (max-width: 560px) {
+  .about__photo {
+    padding: 7px;
+    border-radius: 22px;
+  }
+  .about__photo img {
+    border-radius: 16px;
+  }
+}

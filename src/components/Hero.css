@@ -1,0 +1,150 @@
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 130px 0 90px;
+  overflow: hidden;
+}
+.hero__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: clamp(30px, 5vw, 70px);
+}
+.hero__eyebrow {
+  margin-bottom: 26px;
+}
+.hero__title {
+  font-size: clamp(42px, 6.2vw, 92px);
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  margin-bottom: 26px;
+}
+.hero__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+.hero__line > span {
+  display: inline-block;
+  transform-origin: 0 100%;
+}
+.hero__subtitle {
+  font-size: clamp(18px, 1.7vw, 22px);
+  color: var(--ink-soft);
+  max-width: 34ch;
+  font-weight: 600;
+  margin-bottom: 34px;
+}
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 38px;
+}
+.hero__chips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.hero__chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 15px;
+}
+.hero__chip img {
+  width: 34px;
+  height: 34px;
+}
+
+.hero__visual {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 600px;
+  justify-self: center;
+}
+.hero__blob {
+  position: absolute;
+  inset: 4%;
+}
+.hero__blob-shape {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--c-lime);
+  border: 12px solid #fff;
+  box-shadow:
+    30px 40px 70px -16px rgba(64, 93, 58, 0.35),
+    inset -12px -14px 24px rgba(64, 93, 58, 0.18);
+}
+.hero__blob-shape img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero__mascot img {
+  animation: chameleon-hue 7s linear infinite;
+}
+.hero__dots {
+  position: absolute;
+  left: 50%;
+  bottom: -26px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+.hero__dots button {
+  position: relative;
+  width: 34px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(64, 93, 58, 0.15);
+  cursor: pointer;
+  overflow: hidden;
+}
+.hero__dot-active {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--orange);
+}
+.hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  margin-left: -26px;
+  z-index: 2;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    padding-top: 110px;
+  }
+  .hero__grid {
+    grid-template-columns: 1fr;
+  }
+  .hero__visual {
+    max-width: 440px;
+    margin-top: 10px;
+  }
+  .hero__scroll {
+    display: none;
+  }
+}

@@ -1,0 +1,57 @@
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 80;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+.fab__menu {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+.fab__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow:
+    0 12px 24px -8px rgba(0, 0, 0, 0.35),
+    inset -3px -4px 8px rgba(0, 0, 0, 0.15),
+    inset 3px 4px 8px rgba(255, 255, 255, 0.35);
+}
+.fab__item--wa {
+  background: #25d366;
+}
+.fab__item--call {
+  background: var(--forest);
+}
+.fab__btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  background: var(--orange);
+  box-shadow:
+    0 16px 30px -8px rgba(196, 80, 25, 0.6),
+    inset -5px -6px 12px rgba(196, 80, 25, 0.55),
+    inset 5px 6px 12px rgba(255, 255, 255, 0.45);
+}
+.fab__pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid var(--orange);
+  animation: ring-pulse 2s ease-out infinite;
+}

@@ -1,0 +1,35 @@
+.marquee {
+  position: relative;
+  z-index: 2;
+  padding: 30px 0;
+  overflow: hidden;
+}
+.marquee__row {
+  width: 110vw;
+  margin-left: -5vw;
+  border-radius: 0;
+  overflow: hidden;
+  padding: 14px 0;
+}
+.marquee__row + .marquee__row {
+  margin-top: -6px;
+}
+.marquee__track {
+  display: flex;
+  width: max-content;
+}
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 28px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(18px, 2.4vw, 30px);
+  white-space: nowrap;
+  color: var(--forest-deep);
+}
+.marquee__item img {
+  width: clamp(36px, 4vw, 54px);
+  height: auto;
+}

@@ -139,18 +139,6 @@ export function Hero({ ready }: { ready: boolean }) {
             </video>
           </motion.div>
 
-          <motion.div
-            className="hero__hello clay"
-            initial={{ scale: 0, rotate: -20, opacity: 0 }}
-            animate={ready ? { scale: 1, rotate: -6, opacity: 1 } : {}}
-            transition={{ type: 'spring', stiffness: 260, damping: 12, delay: 1.1 }}
-          >
-            <motion.span animate={{ rotate: [0, 18, -8, 18, 0] }} transition={{ repeat: Infinity, duration: 1.6, repeatDelay: 1.2 }} style={{ display: 'inline-block', transformOrigin: '70% 70%' }}>
-              👋
-            </motion.span>{' '}
-            Привет!
-          </motion.div>
-
           {ready && (
             <>
               <Float src={icons.balloon} size="clamp(64px, 7vw, 108px)" style={{ right: '0%', top: '4%' }} mx={mx} my={my} depth={50} delay={1} duration={5} />

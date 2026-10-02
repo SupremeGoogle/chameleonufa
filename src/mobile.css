@@ -74,13 +74,6 @@
     margin: -6vw -3vw 0 -8vw;
     justify-self: end;
   }
-  .hero__hello {
-    left: -4%;
-    top: 4%;
-    padding: 7px 12px;
-    font-size: 12px;
-    border-radius: 16px 16px 16px 4px;
-  }
 }
 
 @media (max-width: 640px) {

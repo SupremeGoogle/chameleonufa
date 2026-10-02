@@ -89,19 +89,6 @@
   -webkit-mask-image: radial-gradient(closest-side, #000 78%, transparent 100%);
   mask-image: radial-gradient(closest-side, #000 78%, transparent 100%);
 }
-.hero__hello {
-  position: absolute;
-  left: 2%;
-  top: 30%;
-  z-index: 3;
-  padding: 12px 20px;
-  border-radius: 24px 24px 24px 6px;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(15px, 1.5vw, 20px);
-  --clay-bg: #fff;
-  white-space: nowrap;
-}
 .hero__scroll {
   position: absolute;
   left: 50%;

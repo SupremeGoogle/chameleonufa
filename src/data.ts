@@ -14,8 +14,8 @@ export const contacts = {
   yandexForm: 'https://forms.yandex.ru/u/6935c16090fa7bd064ad4bb2',
   mapSrc:
     'https://yandex.ru/map-widget/v1/?text=%D0%A3%D1%84%D0%B0%2C%20%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D0%B9%D1%81%D0%BA%D0%B0%D1%8F%2C%207&z=16',
-  policy: 'https://chameleonufa.ru/politika',
-  consent: 'https://chameleonufa.ru/page101900116.html',
+  policy: '#/politika',
+  consent: '#/soglasie',
 }
 
 export const nav = [
@@ -56,7 +56,6 @@ export const icons = {
 export const hero = {
   title: ['Детские', 'праздники.', 'Уфа.', 'Аниматоры.'],
   subtitle: 'Подарите ребёнку незабываемый праздник!',
-  photos: [photo('s-barbie'), photo('g-unicorn'), photo('s-gold')],
   chips: [
     { icon: ico('party'), text: 'Сотни праздников' },
     { icon: ico('house'), text: 'Уфа и пригород' },

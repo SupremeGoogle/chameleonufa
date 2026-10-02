@@ -1,6 +1,5 @@
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { useEffect } from 'react'
-import { icons } from '../data'
 import './Preloader.css'
 
 /** Экран загрузки: хамелеон меняет цвет, счётчик, затем «шторки» уезжают вверх */
@@ -26,15 +25,15 @@ export function Preloader({ onDone }: { onDone: () => void }) {
         />
       ))}
       <motion.div className="preloader__inner" exit={{ opacity: 0, scale: 0.8, y: -40 }} transition={{ duration: 0.4 }}>
-        <motion.img
-          src={icons.chameleon}
-          alt=""
-          className="preloader__mascot"
-          initial={{ scale: 0, rotate: -30 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 12 }}
+        <motion.div
+          className="preloader__logo"
+          role="img"
+          aria-label="Chameleon"
+          style={{ ['--logo' as string]: `url(${import.meta.env.BASE_URL}img/logo.svg)` }}
+          initial={{ scale: 0.4, opacity: 0, rotate: -12 }}
+          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 180, damping: 13 }}
         />
-        <div className="preloader__brand">Хамелеон</div>
         <div className="preloader__bar clay-inset">
           <motion.span style={{ width }} />
         </div>

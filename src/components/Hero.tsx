@@ -1,6 +1,6 @@
-import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ArrowDown, Sparkles } from 'lucide-react'
-import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useEffect, useRef, type PointerEvent } from 'react'
 import { hero, icons } from '../data'
 import { scrollToId } from '../lib/scroll'
 import { ClayButton } from './ui/ClayButton'
@@ -11,7 +11,8 @@ const wordColors = ['var(--ink)', 'var(--ink)', 'var(--lime-deep)', 'var(--orang
 
 export function Hero({ ready }: { ready: boolean }) {
   const ref = useRef<HTMLElement>(null)
-  const [slide, setSlide] = useState(0)
+  const video = useRef<HTMLVideoElement>(null)
+  const base = import.meta.env.BASE_URL
   const mx = useSpring(useMotionValue(0), { stiffness: 60, damping: 18 })
   const my = useSpring(useMotionValue(0), { stiffness: 60, damping: 18 })
 
@@ -21,10 +22,19 @@ export function Hero({ ready }: { ready: boolean }) {
   const visualScale = useTransform(scrollYProgress, [0, 1], [1, 0.82])
   const visualRotate = useTransform(scrollYProgress, [0, 1], [0, -8])
 
+  const mascotX = useTransform(mx, (v) => v * -24)
+  const mascotY = useTransform(my, (v) => v * -16)
+  const mascotTilt = useTransform(mx, (v) => v * 14)
+
+  // маскот машет только когда экран открыт и пользователь не просил меньше анимаций
   useEffect(() => {
-    const t = setInterval(() => setSlide((s) => (s + 1) % hero.photos.length), 3800)
-    return () => clearInterval(t)
-  }, [])
+    const v = video.current
+    if (!v || !ready) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? v.play().catch(() => {}) : v.pause()))
+    io.observe(v)
+    return () => io.disconnect()
+  }, [ready])
 
   const onMove = (e: PointerEvent<HTMLElement>) => {
     if (e.pointerType !== 'mouse') return
@@ -108,54 +118,46 @@ export function Hero({ ready }: { ready: boolean }) {
 
         <motion.div className="hero__visual" style={{ scale: visualScale, rotate: visualRotate }}>
           <motion.div
-            className="hero__blob"
-            initial={{ scale: 0.4, opacity: 0, rotate: -20 }}
-            animate={ready ? { scale: 1, opacity: 1, rotate: 0 } : {}}
-            transition={{ type: 'spring', stiffness: 70, damping: 14, delay: 0.3 }}
+            className="hero__mascot"
+            style={{ x: mascotX, y: mascotY, rotateY: mascotTilt }}
+            initial={{ scale: 0.3, opacity: 0, y: 80 }}
+            animate={ready ? { scale: 1, opacity: 1, y: 0 } : {}}
+            transition={{ type: 'spring', stiffness: 90, damping: 12, delay: 0.35 }}
           >
-            <motion.div
-              className="hero__blob-shape"
-              animate={{
-                borderRadius: [
-                  '58% 42% 48% 52% / 46% 54% 46% 54%',
-                  '42% 58% 60% 40% / 56% 40% 60% 44%',
-                  '50% 50% 38% 62% / 40% 62% 38% 60%',
-                  '58% 42% 48% 52% / 46% 54% 46% 54%',
-                ],
-              }}
-              transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+            <video
+              ref={video}
+              className="hero__mascot-video"
+              poster={`${base}video/mascot-poster.webp`}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              aria-label="Маскот Хамелеон машет рукой"
             >
-              <AnimatePresence initial={false}>
-                <motion.img
-                  key={slide}
-                  src={hero.photos[slide]}
-                  alt="Праздник от агентства Хамелеон"
-                  initial={{ opacity: 0, scale: 1.25, filter: 'blur(12px)' }}
-                  animate={{ opacity: 1, scale: 1.05, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, scale: 1 }}
-                  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </AnimatePresence>
-            </motion.div>
+              <source src={`${base}video/mascot.webm`} type="video/webm" />
+              <source src={`${base}video/mascot.mp4`} type="video/mp4" />
+            </video>
+          </motion.div>
+
+          <motion.div
+            className="hero__hello clay"
+            initial={{ scale: 0, rotate: -20, opacity: 0 }}
+            animate={ready ? { scale: 1, rotate: -6, opacity: 1 } : {}}
+            transition={{ type: 'spring', stiffness: 260, damping: 12, delay: 1.1 }}
+          >
+            <motion.span animate={{ rotate: [0, 18, -8, 18, 0] }} transition={{ repeat: Infinity, duration: 1.6, repeatDelay: 1.2 }} style={{ display: 'inline-block', transformOrigin: '70% 70%' }}>
+              👋
+            </motion.span>{' '}
+            Привет!
           </motion.div>
 
           {ready && (
             <>
-              <Float src={icons.chameleon} size="clamp(110px, 14vw, 190px)" className="hero__mascot" style={{ left: '-8%', bottom: '2%' }} mx={mx} my={my} depth={-40} delay={0.9} rotate={-6} />
-              <Float src={icons.balloon} size="clamp(70px, 8vw, 120px)" style={{ right: '-4%', top: '-4%' }} mx={mx} my={my} depth={50} delay={1} duration={5} />
-              <Float src={icons.cake} size="clamp(64px, 7vw, 104px)" style={{ right: '-6%', bottom: '12%' }} mx={mx} my={my} depth={30} delay={1.15} duration={7} />
-              <Float src={icons.sparkles} size="clamp(48px, 5vw, 76px)" style={{ left: '6%', top: '2%' }} mx={mx} my={my} depth={-25} delay={1.3} duration={4.5} />
-              <Float src={icons.gift} size="clamp(54px, 6vw, 88px)" style={{ left: '38%', bottom: '-6%' }} mx={mx} my={my} depth={60} delay={1.4} duration={6.5} />
+              <Float src={icons.balloon} size="clamp(64px, 7vw, 108px)" style={{ right: '0%', top: '4%' }} mx={mx} my={my} depth={50} delay={1} duration={5} />
+              <Float src={icons.sparkles} size="clamp(44px, 4.6vw, 70px)" style={{ left: '4%', top: '10%' }} mx={mx} my={my} depth={-25} delay={1.2} duration={4.5} />
+              <Float src={icons.confetti} size="clamp(50px, 5.4vw, 82px)" style={{ right: '2%', bottom: '14%' }} mx={mx} my={my} depth={35} delay={1.35} duration={6.5} />
             </>
           )}
-
-          <div className="hero__dots" role="tablist" aria-label="Фото">
-            {hero.photos.map((_, i) => (
-              <button key={i} role="tab" aria-selected={slide === i} aria-label={`Фото ${i + 1}`} onClick={() => setSlide(i)}>
-                {slide === i && <motion.span layoutId="hero-dot" className="hero__dot-active" />}
-              </button>
-            ))}
-          </div>
         </motion.div>
       </div>
 

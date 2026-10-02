@@ -275,3 +275,29 @@ p {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ───────── CURSOR: хамелеон, который «меняет цвет» над кликабельным ───────── */
+@media (hover: hover) and (pointer: fine) {
+  html,
+  body {
+    cursor: url('/img/cursor.png') 4 2, auto;
+  }
+  a,
+  button,
+  select,
+  label,
+  summary,
+  [role='tab'],
+  [role='radio'],
+  .formats__place,
+  .reviews__card,
+  .gallery__card,
+  .about__photo,
+  .reviews__shot {
+    cursor: url('/img/cursor-hover.png') 4 2, pointer !important;
+  }
+  input,
+  textarea {
+    cursor: text;
+  }
+}

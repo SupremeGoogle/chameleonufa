@@ -16,17 +16,20 @@
   justify-items: center;
   gap: 18px;
 }
-.preloader__mascot {
-  width: 140px;
-  height: 140px;
-  animation: chameleon-hue 3s linear infinite;
-  filter: drop-shadow(0 20px 20px rgba(64, 93, 58, 0.3));
+.preloader__logo {
+  width: clamp(220px, 46vw, 340px);
+  aspect-ratio: 277 / 139.5;
+  /* настоящий логотип как маска, внутри — переливающийся «хамелеоновый» градиент */
+  background: linear-gradient(110deg, var(--forest) 0%, var(--lime-deep) 25%, var(--orange) 50%, var(--lime-deep) 75%, var(--forest) 100%);
+  background-size: 300% 100%;
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+  animation: logo-shift 2.2s linear infinite;
 }
-.preloader__brand {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 34px;
-  color: var(--forest);
+@keyframes logo-shift {
+  to {
+    background-position: 300% 0;
+  }
 }
 .preloader__bar {
   width: 220px;

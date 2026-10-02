@@ -57,10 +57,10 @@ export function Footer() {
 
           <div className="footer__bottom">
             <span>© Хамелеон. Все права защищены</span>
-            <a href={contacts.policy} target="_blank" rel="noopener noreferrer">
+            <a href={contacts.policy}>
               Политика конфиденциальности
             </a>
-            <a href={contacts.consent} target="_blank" rel="noopener noreferrer">
+            <a href={contacts.consent}>
               Согласие на обработку данных
             </a>
             <motion.button className="icon-btn" onClick={() => scrollToId('top')} whileHover={{ y: -6 }} whileTap={{ scale: 0.85 }} aria-label="Наверх">

@@ -74,16 +74,50 @@
   background: rgba(255, 255, 255, 0.85);
   color: var(--forest);
 }
-.gallery__caption {
-  display: block;
-  padding: 12px 8px 4px;
-  font-weight: 800;
-  font-size: 15px;
-  color: var(--ink-soft);
-}
 @media (max-width: 640px) {
   .gallery__head {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+/* телефон: без фиксации, обычная горизонтальная лента со свайпом */
+.gallery--mobile .gallery__sticky {
+  position: static;
+  height: auto;
+  padding: 70px 0 50px;
+  overflow: visible;
+}
+.gallery--mobile .gallery__viewport {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.gallery--mobile .gallery__viewport::-webkit-scrollbar {
+  display: none;
+}
+.gallery--mobile .gallery__track {
+  padding: 20px var(--gutter) 30px;
+  gap: 16px;
+}
+.gallery--mobile .gallery__card {
+  width: 68vw;
+  padding: 8px;
+  border-radius: 26px;
+  scroll-snap-align: center;
+}
+.gallery--mobile .gallery__card:nth-child(3n + 2) {
+  margin-top: 0;
+}
+.gallery--mobile .gallery__card img {
+  height: 52vw;
+  max-height: 340px;
+  border-radius: 20px;
+}
+.gallery--mobile .gallery__zoom {
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
 }

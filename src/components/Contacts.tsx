@@ -133,11 +133,11 @@ export function Contacts() {
                     </a>
                     <p className="contacts__legal">
                       Нажимая на кнопку, вы соглашаетесь с{' '}
-                      <a href={contacts.policy} target="_blank" rel="noopener noreferrer">
+                      <a href={contacts.policy}>
                         Политикой конфиденциальности
                       </a>{' '}
                       и даёте{' '}
-                      <a href={contacts.consent} target="_blank" rel="noopener noreferrer">
+                      <a href={contacts.consent}>
                         согласие на обработку персональных данных
                       </a>
                       .

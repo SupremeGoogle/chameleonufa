@@ -32,3 +32,8 @@ export function lockScroll(locked: boolean) {
   }
   document.documentElement.style.overflow = locked ? 'hidden' : ''
 }
+
+export function scrollTop() {
+  if (lenis) lenis.scrollTo(0, { immediate: true, force: true })
+  window.scrollTo(0, 0)
+}

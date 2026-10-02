@@ -75,55 +75,32 @@
   max-width: 600px;
   justify-self: center;
 }
-.hero__blob {
-  position: absolute;
-  inset: 4%;
-}
-.hero__blob-shape {
+.hero__mascot {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  background: var(--c-lime);
-  border: 12px solid #fff;
-  box-shadow:
-    30px 40px 70px -16px rgba(64, 93, 58, 0.35),
-    inset -12px -14px 24px rgba(64, 93, 58, 0.18);
+  transform-perspective: 900px;
 }
-.hero__blob-shape img {
-  position: absolute;
-  inset: 0;
+.hero__mascot-video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: var(--bg);
+  /* края видео растворяются в фоне страницы */
+  -webkit-mask-image: radial-gradient(closest-side, #000 78%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 78%, transparent 100%);
 }
-.hero__mascot img {
-  animation: chameleon-hue 7s linear infinite;
-}
-.hero__dots {
+.hero__hello {
   position: absolute;
-  left: 50%;
-  bottom: -26px;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
+  left: 2%;
+  top: 30%;
   z-index: 3;
-}
-.hero__dots button {
-  position: relative;
-  width: 34px;
-  height: 12px;
-  padding: 0;
-  border: 0;
-  border-radius: 99px;
-  background: rgba(64, 93, 58, 0.15);
-  cursor: pointer;
-  overflow: hidden;
-}
-.hero__dot-active {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--orange);
+  padding: 12px 20px;
+  border-radius: 24px 24px 24px 6px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(15px, 1.5vw, 20px);
+  --clay-bg: #fff;
+  white-space: nowrap;
 }
 .hero__scroll {
   position: absolute;

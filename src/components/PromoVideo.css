@@ -1,0 +1,114 @@
+.promo__head {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 18px;
+  margin-bottom: clamp(28px, 4vw, 50px);
+}
+.promo__frame {
+  position: relative;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(8px, 1.2vw, 14px);
+  border-radius: clamp(26px, 3.4vw, 44px);
+  --clay-bg: #fff;
+}
+.promo__video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: clamp(18px, 2.6vw, 32px);
+  background: var(--c-lime);
+}
+.promo__sound {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 2;
+}
+.promo__pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 3px solid var(--orange);
+  animation: ring-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+.promo__bar {
+  position: absolute;
+  left: clamp(18px, 2.4vw, 30px);
+  right: clamp(18px, 2.4vw, 30px);
+  bottom: clamp(16px, 2.2vw, 28px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 252, 244, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px -10px rgba(44, 66, 40, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.promo__frame:hover .promo__bar,
+.promo__frame:focus-within .promo__bar {
+  opacity: 1;
+}
+.promo__ctl {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--forest);
+  color: #fff;
+  cursor: pointer;
+  flex: none;
+}
+.promo__track {
+  flex: 1;
+  height: 10px;
+  border-radius: 99px;
+  background: rgba(64, 93, 58, 0.15);
+  overflow: hidden;
+  cursor: pointer;
+}
+.promo__track span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--lime), var(--orange));
+  border-radius: inherit;
+}
+@media (hover: none) {
+  .promo__bar {
+    opacity: 1;
+  }
+}
+@media (max-width: 640px) {
+  .promo__sound {
+    padding: 11px 16px;
+    font-size: 13px;
+  }
+  .promo__sound svg {
+    width: 16px;
+    height: 16px;
+  }
+  .promo__bar {
+    position: static;
+    margin-top: 8px;
+    gap: 6px;
+    padding: 2px;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .promo__ctl {
+    width: 30px;
+    height: 30px;
+  }
+}

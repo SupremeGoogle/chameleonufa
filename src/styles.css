@@ -298,7 +298,9 @@ p {
   .reviews__card,
   .gallery__card,
   .about__photo,
-  .reviews__shot {
+  .reviews__shot,
+  .promo__track,
+  .promo__video {
     cursor: url('/img/cursor-hover.png') 4 2, pointer !important;
   }
   input,

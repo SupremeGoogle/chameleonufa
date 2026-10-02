@@ -13,6 +13,7 @@ import { Hero } from './components/Hero'
 import { Marquee } from './components/Marquee'
 import { Preloader } from './components/Preloader'
 import { Programs } from './components/Programs'
+import { PromoVideo } from './components/PromoVideo'
 import { Reviews } from './components/Reviews'
 import { Safety } from './components/Safety'
 import { LegalPage } from './components/LegalPage'
@@ -57,6 +58,7 @@ export default function App() {
               <Hero ready={!loading} />
               <Marquee />
               <About />
+              <PromoVideo />
               <Formats />
               <Gallery />
               <Programs />

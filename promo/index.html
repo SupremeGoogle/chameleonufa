@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920">
+<title>Хамелеон — промо</title>
+<!--
+  Promo motion piece for «Хамелеон». 1920x1080, one global timeline.
+  Every animation is a paused Web Animation (or a per-frame "ticker") driven by
+  window.PROMO.seek(t). render.mjs steps t frame by frame and screenshots it.
+  Open via a local http server (masks + video need http), without ?render=1 it plays live.
+-->
+<style>
+@font-face{font-family:'Unbounded';font-weight:200 900;font-display:block;src:url(assets/fonts/unbounded-cyrillic-wght-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Unbounded';font-weight:200 900;font-display:block;src:url(assets/fonts/unbounded-latin-ext-wght-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Unbounded';font-weight:200 900;font-display:block;src:url(assets/fonts/unbounded-latin-wght-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Nunito';font-weight:200 1000;font-display:block;src:url(assets/fonts/nunito-cyrillic-wght-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Nunito';font-weight:200 1000;font-display:block;src:url(assets/fonts/nunito-latin-ext-wght-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Nunito';font-weight:200 1000;font-display:block;src:url(assets/fonts/nunito-latin-wght-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root{
+  --lime:#a6c64c;--limeD:#7fa12a;--orange:#ff955f;--orangeD:#e9723d;--forest:#405d3a;--forestD:#2c4228;
+  --cream:#f6f3e9;--ink:#23301f;--paper:#fffdf7;
+  --p-lime:#dff0a8;--p-peach:#ffd7bf;--p-sky:#cfe8ff;--p-butter:#fff0a8;--p-pink:#ffd1e3;--p-lilac:#e2d8ff;--p-mint:#c9f2df;
+  --clay:0 36px 60px -22px rgba(35,48,31,.42),0 12px 24px -10px rgba(35,48,31,.22),inset 0 -12px 22px rgba(35,48,31,.13),inset 0 12px 20px rgba(255,255,255,.75);
+  --clay-dark:0 40px 60px -20px rgba(0,0,0,.45),0 12px 24px -10px rgba(0,0,0,.3),inset 0 -12px 22px rgba(35,48,31,.16),inset 0 12px 20px rgba(255,255,255,.7);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#1b1f19;overflow:hidden}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--cream);font-family:'Nunito',sans-serif;color:var(--ink);transform-origin:0 0}
+.scene{position:absolute;inset:0;overflow:hidden}
+.abs{position:absolute}
+.clay{box-shadow:var(--clay)}
+.u{font-family:'Unbounded',sans-serif;font-weight:900;letter-spacing:-.02em;line-height:1}
+.n{font-family:'Nunito',sans-serif;font-weight:900}
+.ch{display:inline-block;white-space:pre}
+.w{display:inline-block}
+.blob{position:absolute;box-shadow:inset 0 -36px 70px rgba(35,48,31,.10),inset 0 36px 60px rgba(255,255,255,.55),0 40px 80px -30px rgba(35,48,31,.22)}
+.emo{position:absolute;pointer-events:none}
+.emo img{width:100%;height:100%;display:block;filter:drop-shadow(0 18px 16px rgba(35,48,31,.28))}
+.dots{position:absolute;inset:-100px;background-image:radial-gradient(circle,var(--dc,rgba(255,255,255,.22)) 3px,transparent 3.6px);background-size:46px 46px}
+.logo{-webkit-mask:url(assets/img/logo.svg) center/contain no-repeat;mask:url(assets/img/logo.svg) center/contain no-repeat;background:linear-gradient(180deg,#5f8556 0%,#405d3a 52%,#324d2d 100%)}
+.logoShadow{filter:drop-shadow(0 5px 0 #2a4026) drop-shadow(0 20px 22px rgba(35,48,31,.30))}
+.pill{display:inline-flex;align-items:center;gap:18px;border-radius:999px;white-space:nowrap}
+
+/* ---------- scene 1 ---------- */
+#s1{background:#f6f3e8}
+#mascotWrap{left:550px;top:150px;width:820px;height:820px}
+#mascotInner{position:absolute;inset:0}
+.mascotVid{width:100%;height:100%;display:block;object-fit:cover;
+  -webkit-mask-image:radial-gradient(closest-side at 50% 49%,#000 87%,rgba(0,0,0,.6) 93%,transparent 100%);
+  mask-image:radial-gradient(closest-side at 50% 49%,#000 87%,rgba(0,0,0,.6) 93%,transparent 100%)}
+.feet{position:absolute;left:30%;width:40%;height:7%;top:86%;border-radius:50%;background:radial-gradient(closest-side,rgba(64,93,58,.30),rgba(64,93,58,0));mix-blend-mode:multiply}
+#hello{left:600px;top:58px;white-space:nowrap;padding:26px 46px 30px;background:var(--paper);border-radius:64px;color:var(--orangeD);font-size:66px;transform-origin:0% 100%}
+#hello::after{content:'';position:absolute;left:34px;bottom:-22px;width:56px;height:56px;background:var(--paper);border-radius:6px 0 22px 0;transform:rotate(38deg) skewX(8deg);z-index:-1;box-shadow:8px 10px 18px -8px rgba(35,48,31,.35)}
+#logoBox{left:940px;top:262px;width:1000px;height:503px}
+#logoBox .logo{position:absolute;inset:0}
+#logoBar{left:150px;top:60px;width:700px;height:383px;border-radius:120px;background:var(--orange)}
+#logoSub{left:940px;top:745px;width:1000px;display:flex;justify-content:center}
+#logoSub .pill{background:var(--p-butter);padding:18px 40px;font-size:42px;color:var(--forest)}
+
+/* ---------- wipes ---------- */
+.wipe{position:absolute;inset:0}
+
+/* ---------- scene 2 ---------- */
+#s2{background:var(--lime)}
+.line{position:absolute;left:0;right:0;text-align:center}
+#l1{top:120px;font-size:178px;color:var(--cream);text-shadow:0 7px 0 var(--limeD),0 22px 34px rgba(35,48,31,.32)}
+#l2{top:322px;font-size:178px;color:var(--forest);text-shadow:0 7px 0 var(--forestD),0 22px 34px rgba(35,48,31,.30)}
+#row3{position:absolute;left:0;right:0;top:560px;display:flex;justify-content:center;gap:40px}
+#row3 .pill{font-size:108px;padding:26px 54px 30px;color:var(--cream)}
+#pUfa{background:var(--orange);text-shadow:0 5px 0 var(--orangeD)}
+#pAnim{background:var(--forest);text-shadow:0 5px 0 var(--forestD)}
+#tagline{position:absolute;left:0;right:0;top:830px;display:flex;justify-content:center}
+#tagline .pill{background:var(--cream);padding:24px 54px;font-size:54px;color:var(--forest)}
+#ring2{left:0;top:0;width:300px;height:300px;border-radius:50%;border:16px solid var(--cream)}
+
+/* ---------- scene 3 ---------- */
+#s3{background:var(--cream)}
+#s3zoom{position:absolute;inset:0;transform-origin:960px 600px}
+.cpos{position:absolute;perspective:1500px}
+.ctilt{transform-style:preserve-3d;width:100%;height:100%}
+.polaroid{position:absolute;inset:0;background:var(--paper);border-radius:30px;padding:18px 18px 0;box-shadow:var(--clay)}
+.polaroid img{width:100%;display:block;object-fit:cover;border-radius:18px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.polaroid .cap{text-align:center;font-family:'Nunito';font-weight:900;font-size:26px;line-height:62px;color:var(--ink);white-space:nowrap}
+#s3title{left:0;right:0;top:46px;display:flex;justify-content:center}
+#s3title .pill{background:var(--forest);color:var(--cream);font-size:62px;padding:24px 50px 28px;box-shadow:var(--clay-dark)}
+#s3title .pill img{width:76px;height:76px}
+
+/* ---------- scene 4 ---------- */
+#s4{background:var(--cream)}
+#s4in{position:absolute;inset:0;transform-origin:960px 560px}
+#s4title{top:62px;font-size:74px;color:var(--forest);text-shadow:0 5px 0 rgba(64,93,58,.18)}
+.pcard{position:absolute;width:540px;height:336px;perspective:1400px}
+.pcard .pc{position:absolute;inset:0;border-radius:48px;box-shadow:var(--clay);overflow:visible}
+.pcard .pclip{position:absolute;inset:0;border-radius:48px;overflow:hidden}
+.pcard .shine{position:absolute;top:-20%;bottom:-20%;width:180px;left:0;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.65),rgba(255,255,255,0));transform:translateX(-300px) skewX(-18deg)}
+.pcard .num{position:absolute;right:36px;top:30px;font-family:'Unbounded';font-weight:800;font-size:26px;color:rgba(35,48,31,.35)}
+.pcard .ic{position:absolute;left:30px;top:-46px;width:160px;height:160px}
+.pcard .ic img{width:100%;height:100%;filter:drop-shadow(0 16px 14px rgba(35,48,31,.3))}
+.pcard .name{position:absolute;left:42px;top:138px;font-family:'Nunito';font-weight:900;font-size:46px;color:var(--ink);white-space:nowrap}
+.pcard .price{position:absolute;left:42px;bottom:36px;display:flex;align-items:baseline;gap:14px;white-space:nowrap}
+.pcard .from{font-family:'Nunito';font-weight:900;font-size:36px;color:rgba(35,48,31,.6)}
+.pcard .val{font-family:'Unbounded';font-weight:900;font-size:66px;color:var(--forest);letter-spacing:-.03em}
+.pcard .rub{font-family:'Unbounded';font-weight:900;font-size:52px;color:var(--orangeD)}
+
+/* ---------- scene 5 ---------- */
+#s5{background:var(--forest)}
+#s5title{top:400px;font-size:92px;color:var(--cream);text-shadow:0 7px 0 var(--forestD),0 24px 34px rgba(0,0,0,.3);line-height:1.08}
+#s5title .lime{color:var(--p-lime)}
+.addon{position:absolute;left:0;top:0;width:0;height:0}
+.addon .ai{position:absolute;left:-85px;top:-128px;width:170px;height:170px}
+.addon .ai img{width:100%;height:100%;filter:drop-shadow(0 18px 14px rgba(0,0,0,.35))}
+.addon .al{position:absolute;top:50px;left:0;transform:translateX(-50%);padding:12px 32px 14px;font-size:40px;box-shadow:var(--clay-dark);color:var(--ink)}
+#orbit{left:0;top:0}
+
+/* ---------- curtain ---------- */
+.col{position:absolute;top:0;width:330px;height:1340px;border-radius:0 0 165px 165px;background:var(--cream);box-shadow:0 30px 50px -10px rgba(35,48,31,.35)}
+
+/* ---------- scene 6 ---------- */
+#s6{background:var(--cream)}
+.bigcard{position:absolute;top:170px;width:820px;height:760px;border-radius:60px;box-shadow:var(--clay)}
+#safe{left:110px;background:var(--p-mint)}
+#rev{left:990px;background:var(--paper)}
+#safe .hd{position:absolute;left:60px;top:150px;font-size:54px;color:var(--forest);line-height:1.12}
+.srow{position:absolute;left:56px;right:40px;display:flex;align-items:center;gap:26px;font-size:38px;line-height:1.15}
+.srow img{width:84px;height:84px;flex:none;filter:drop-shadow(0 10px 10px rgba(35,48,31,.25))}
+.srow .tx{background:rgba(255,255,255,.6);border-radius:28px;padding:16px 26px;box-shadow:inset 0 -6px 12px rgba(35,48,31,.08),inset 0 6px 10px rgba(255,255,255,.8)}
+#revChip{left:60px;top:58px;background:var(--orange);color:#fff;font-size:34px;padding:14px 32px;text-shadow:0 3px 0 var(--orangeD)}
+#stars{position:absolute;left:52px;top:156px;display:flex;gap:10px}
+#stars img{width:100px;height:100px;filter:drop-shadow(0 10px 10px rgba(35,48,31,.25))}
+#quote{position:absolute;left:62px;right:60px;top:300px;font-size:54px;line-height:1.2;color:var(--ink)}
+#quote .hl{color:var(--orangeD)}
+#author{position:absolute;left:62px;top:640px;font-size:34px;color:rgba(35,48,31,.6)}
+
+/* ---------- scene 7 ---------- */
+#s7{background:var(--lime)}
+#disc{left:130px;top:170px;width:780px;height:780px;border-radius:50%;background:var(--cream);overflow:hidden;box-shadow:0 50px 80px -30px rgba(35,48,31,.5),0 16px 30px -12px rgba(35,48,31,.3),inset 0 -24px 40px rgba(35,48,31,.14),inset 0 24px 40px rgba(255,255,255,.8)}
+#disc .mv{position:absolute;left:40px;top:50px;width:700px;height:700px}
+#disc video{width:100%;height:100%;display:block;-webkit-mask-image:radial-gradient(circle closest-side,#000 84%,transparent 100%);mask-image:radial-gradient(circle closest-side,#000 84%,transparent 100%)}
+#logo7{left:1000px;top:110px;width:560px;height:282px}
+#logo7 .logo{position:absolute;inset:0;background:linear-gradient(180deg,#fffef8 0%,#f6f3e9 55%,#e6e1cf 100%)}
+#logo7.logoShadow{filter:drop-shadow(0 5px 0 var(--limeD)) drop-shadow(0 20px 22px rgba(35,48,31,.30))}
+#cta{left:1000px;top:430px;font-size:104px;color:var(--forest);text-shadow:0 6px 0 rgba(44,66,40,.35),0 22px 30px rgba(35,48,31,.25);line-height:1.02}
+#phoneBtn{left:1000px;top:672px;background:var(--orange);color:#fff;padding:22px 46px 22px 30px;font-size:56px;text-shadow:0 4px 0 var(--orangeD);box-shadow:0 40px 60px -20px rgba(150,60,20,.55),0 12px 24px -10px rgba(35,48,31,.3),inset 0 -14px 22px rgba(160,60,20,.28),inset 0 14px 22px rgba(255,230,210,.8)}
+#phoneBtn img{width:92px;height:92px}
+.ring{position:absolute;left:1000px;top:672px;border-radius:999px;border:8px solid var(--orange)}
+.chip7{left:1000px;background:var(--cream);font-size:34px;padding:12px 30px 12px 16px;color:var(--forest)}
+.chip7 img{width:58px;height:58px}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ================= SCENE 1: mascot intro ================= -->
+  <section class="scene" id="s1">
+    <div class="blob" id="b11" style="left:1400px;top:-300px;width:760px;height:690px;background:var(--p-lime)"></div>
+    <div class="blob" id="b12" style="left:-330px;top:780px;width:600px;height:540px;background:var(--p-peach)"></div>
+    <div class="blob" id="b13" style="left:1560px;top:850px;width:440px;height:400px;background:var(--p-sky)"></div>
+    <div id="mascotWrap" class="abs">
+      <div id="mascotInner">
+        <video id="vid1" class="mascotVid" src="assets/video/mascot.webm" muted playsinline preload="auto" data-start="0"></video>
+        <div class="feet"></div>
+      </div>
+      <div id="hello" class="abs u clay">Привет!</div>
+    </div>
+    <div id="s1emo"></div>
+    <div id="logoBox" class="abs">
+      <div class="logoShadow abs" id="logo1" style="inset:0"><div class="logo"></div></div>
+      <div id="logoBar" class="abs clay"></div>
+    </div>
+    <div id="logoSub" class="abs"><div class="pill n clay">Детские праздники в Уфе</div></div>
+  </section>
+
+  <div class="wipe" id="w1" style="background:var(--orange)"></div>
+
+  <!-- ================= SCENE 2: kinetic type ================= -->
+  <section class="scene" id="s2">
+    <div class="blob" id="b21" style="left:-220px;top:-260px;width:820px;height:700px;background:#b6d35f"></div>
+    <div class="blob" id="b22" style="left:1380px;top:640px;width:800px;height:720px;background:#b6d35f"></div>
+    <div class="dots" id="dots2"></div>
+    <div id="s2emo"></div>
+    <div id="s2c" class="abs" style="inset:0">
+      <div class="line u" id="l1">Детские</div>
+      <div class="line u" id="l2">праздники.</div>
+      <div id="ring2" class="abs"></div>
+      <div id="row3"><div class="pill u clay" id="pUfa">Уфа.</div><div class="pill u clay" id="pAnim">Аниматоры.</div></div>
+      <div id="tagline"><div class="pill n clay" id="tagPill">Подарите ребёнку незабываемый праздник!</div></div>
+    </div>
+  </section>
+
+  <div class="wipe" id="w2a" style="background:var(--orange)"></div>
+  <div class="wipe" id="w2b" style="background:var(--p-sky)"></div>
+
+  <!-- ================= SCENE 3: photo collage ================= -->
+  <section class="scene" id="s3">
+    <div class="dots" style="--dc:rgba(166,198,76,.28)" id="dots3"></div>
+    <div id="s3zoom"><div id="s3plane" class="abs" style="inset:0"></div></div>
+    <div id="s3title" class="abs"><div class="pill u"><img src="assets/img/camera.png" alt="">Наши праздники</div></div>
+  </section>
+
+  <!-- ================= SCENE 4: programs ================= -->
+  <section class="scene" id="s4">
+    <div id="s4in">
+      <div class="blob" id="b41" style="left:-260px;top:-240px;width:620px;height:560px;background:var(--p-peach)"></div>
+      <div class="blob" id="b42" style="left:1580px;top:-200px;width:560px;height:520px;background:var(--p-lime)"></div>
+      <div class="line u" id="s4title">Программы праздника</div>
+      <div id="grid"></div>
+    </div>
+  </section>
+
+  <div class="blob" id="w4" style="left:-340px;top:-760px;width:2600px;height:2600px;background:var(--forest)"></div>
+
+  <!-- ================= SCENE 5: add-ons orbit ================= -->
+  <section class="scene" id="s5">
+    <div class="blob" id="b51" style="left:-200px;top:-220px;width:700px;height:620px;background:#4b6c44"></div>
+    <div class="blob" id="b52" style="left:1440px;top:620px;width:720px;height:640px;background:#4b6c44"></div>
+    <div class="dots" style="--dc:rgba(246,243,233,.08)"></div>
+    <svg id="orbit" class="abs" width="1920" height="1080" viewBox="0 0 1920 1080">
+      <ellipse id="orb1" cx="960" cy="540" rx="780" ry="360" fill="none" stroke="rgba(246,243,233,.28)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0.1 22"/>
+      <ellipse id="orb2" cx="960" cy="540" rx="560" ry="250" fill="none" stroke="rgba(223,240,168,.18)" stroke-width="4" stroke-linecap="round" stroke-dasharray="0.1 18"/>
+    </svg>
+    <div class="line u" id="s5title">Чем дополнить<br><span class="lime">праздник?</span></div>
+    <div id="addons"></div>
+  </section>
+
+  <div id="curtain" class="abs" style="inset:0"></div>
+
+  <!-- ================= SCENE 6: safety + review ================= -->
+  <section class="scene" id="s6">
+    <div class="blob" id="b61" style="left:1600px;top:-240px;width:560px;height:500px;background:var(--p-butter)"></div>
+    <div class="blob" id="b62" style="left:-240px;top:820px;width:560px;height:480px;background:var(--p-lilac)"></div>
+    <div id="s6in" class="abs" style="inset:0;perspective:1800px">
+      <div class="bigcard" id="safe">
+        <div class="emo" id="shieldIc" style="left:46px;top:-70px;width:190px;height:190px"><img src="assets/img/shield.png" alt=""></div>
+        <div class="hd u">Безопасность —<br>наш приоритет</div>
+        <div class="srow n" style="top:330px"><img src="assets/img/check.png" alt=""><div class="tx">Аниматоры проходят проверку и инструктаж</div></div>
+        <div class="srow n" style="top:478px"><img src="assets/img/bandage.png" alt=""><div class="tx">Аптечка на каждом празднике</div></div>
+        <div class="srow n" style="top:596px"><img src="assets/img/wand.png" alt=""><div class="tx">Сертифицированный реквизит</div></div>
+      </div>
+      <div class="bigcard" id="rev">
+        <div class="pill n abs clay" id="revChip">Отзывы родителей</div>
+        <div class="emo" id="speechIc" style="right:-50px;top:-80px;width:170px;height:170px"><img src="assets/img/speech.png" alt=""></div>
+        <div id="stars"></div>
+        <div id="quote" class="n">«Аниматор нашла подход ко всем детям, работу свою выполнила <span class="hl">на все 200%</span>»</div>
+        <div id="author" class="n">— Ильвина, мама именинницы</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCENE 7: outro CTA ================= -->
+  <section class="scene" id="s7">
+    <div class="blob" id="b71" style="left:1500px;top:-260px;width:700px;height:620px;background:#b6d35f"></div>
+    <div class="blob" id="b72" style="left:-240px;top:760px;width:640px;height:560px;background:#b6d35f"></div>
+    <div class="dots" id="dots7"></div>
+    <div id="disc" class="abs"><div class="mv"><video id="vid2" src="assets/video/mascot.webm" muted playsinline preload="auto"></video></div></div>
+    <div id="logo7" class="abs logoShadow"><div class="logo"></div></div>
+    <div id="cta" class="abs u">Оставьте<br>заявку</div>
+    <div class="ring" id="ringA"></div><div class="ring" id="ringB"></div>
+    <div id="phoneBtn" class="abs pill u"><img src="assets/img/phone.png" alt="">8-937-788-2-333</div>
+    <div class="abs pill n chip7 clay" id="chipWa" style="top:850px"><img src="assets/img/mobile.png" alt="">WhatsApp +7 987 139-32-80</div>
+    <div class="abs pill n chip7 clay" id="chipAd" style="top:936px"><img src="assets/img/pin.png" alt="">Уфа, ул. Российская, 7</div>
+    <div id="s7emo"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict'
+// ------------------------------------------------------------------ timeline
+const B2 = 4.0    // circle wipe into kinetic type
+const B3 = 8.35   // diagonal wipe into photo collage
+const B4 = 12.55  // zoom-through into programs
+const B5 = 17.0   // clay blob into add-ons
+const B6 = 20.3   // curtain into safety + review
+const B7 = 24.35  // rounded-rect expand into outro
+const DURATION = 28.2
+
+const $ = (s, r = document) => r.querySelector(s)
+const $$ = (s, r = document) => [...r.querySelectorAll(s)]
+const anims = [], tickers = [], videos = []
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
+const prog = (t, s, d) => clamp((t - s) / d)
+
+// seeded random so every render is identical
+let seed = 7
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let x = Math.imul(seed ^ seed >>> 15, 1 | seed); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296 }
+
+// ------------------------------------------------------------------ easing
+function springFn(zeta, w = 1) {
+  const wd = w * Math.sqrt(1 - zeta * zeta)
+  const T = -Math.log(0.0015) / (zeta * w)
+  return (p) => p >= 1 ? 1 : 1 - Math.exp(-zeta * w * p * T) * (Math.cos(wd * p * T) + (zeta * w / wd) * Math.sin(wd * p * T))
+}
+function springCss(zeta) {
+  const f = springFn(zeta), n = 90, pts = []
+  for (let i = 0; i <= n; i++) pts.push(+f(i / n).toFixed(4))
+  pts[n] = 1
+  return `linear(${pts.join(',')})`
+}
+const E = {
+  out: 'cubic-bezier(.16,1,.3,1)',
+  outQ: 'cubic-bezier(.22,1,.36,1)',
+  inOut: 'cubic-bezier(.76,0,.24,1)',
+  inOutS: 'cubic-bezier(.65,0,.35,1)',
+  in: 'cubic-bezier(.7,0,.84,0)',
+  inQ: 'cubic-bezier(.5,0,.75,0)',
+  back: 'cubic-bezier(.34,1.56,.64,1)',
+  soft: 'cubic-bezier(.45,0,.55,1)',
+  spring: springCss(0.42),
+  bouncy: springCss(0.3),
+  gentle: springCss(0.58),
+}
+const easeOutExpo = (p) => p >= 1 ? 1 : 1 - Math.pow(2, -10 * p)
+const easeInCubic = (p) => p * p * p
+const easeInOut = (p) => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
+const sp42 = springFn(0.42), sp55 = springFn(0.55)
+
+// ------------------------------------------------------------------ helpers
+function A(el, kf, start, dur, ease = E.out, fill = 'both', extra = {}) {
+  if (typeof el === 'string') el = $(el)
+  const a = el.animate(kf, { delay: start * 1000, duration: dur * 1000, easing: ease, fill, ...extra })
+  a.pause(); anims.push(a); return a
+}
+const OUT = (el, kf, start, dur, ease = E.in) => A(el, kf, start, dur, ease, 'forwards')
+const LOOP = (el, kf, start, dur, ease = E.soft) => A(el, kf, start, dur, ease, 'both', { iterations: Infinity, direction: 'alternate' })
+const tick = (fn) => tickers.push(fn)
+function scene(el, from, to) { if (typeof el === 'string') el = $(el); tick((t) => { el.style.visibility = t >= from && t < to ? 'visible' : 'hidden' }) }
+
+function splitChars(el) {
+  const out = []
+  const walk = (node) => {
+    for (const c of [...node.childNodes]) {
+      if (c.nodeType === 3) {
+        const frag = document.createDocumentFragment()
+        for (const word of c.textContent.split(/(\s+)/)) {
+          if (!word) continue
+          if (/^\s+$/.test(word)) { frag.appendChild(document.createTextNode(' ')); continue }
+          const w = document.createElement('span'); w.className = 'w'
+          for (const ch of word) { const s = document.createElement('span'); s.className = 'ch'; s.textContent = ch; w.appendChild(s); out.push(s) }
+          frag.appendChild(w)
+        }
+        c.replaceWith(frag)
+      } else if (c.nodeType === 1 && c.tagName !== 'BR' && c.tagName !== 'IMG') walk(c)
+    }
+  }
+  walk(el); return out
+}
+function splitWords(el) {
+  const out = []
+  const walk = (node) => {
+    for (const c of [...node.childNodes]) {
+      if (c.nodeType === 3) {
+        const frag = document.createDocumentFragment()
+        for (const word of c.textContent.split(/(\s+)/)) {
+          if (!word) continue
+          if (/^\s+$/.test(word)) { frag.appendChild(document.createTextNode(' ')); continue }
+          const w = document.createElement('span'); w.className = 'w'; w.textContent = word; frag.appendChild(w); out.push(w)
+        }
+        c.replaceWith(frag)
+      } else if (c.nodeType === 1 && c.tagName !== 'BR') walk(c)
+    }
+  }
+  walk(el); return out
+}
+
+const BR = ['42% 58% 63% 37% / 45% 39% 61% 55%', '61% 39% 41% 59% / 58% 52% 48% 42%', '48% 52% 37% 63% / 38% 61% 39% 62%', '55% 45% 56% 44% / 50% 42% 58% 50%']
+function blob(el, start, opt = {}) {
+  if (typeof el === 'string') el = $(el)
+  const r = rnd(), dur = 3 + r * 2
+  const order = [0, 1, 2, 3].sort(() => rnd() - .5)
+  LOOP(el, order.map((i) => ({ borderRadius: BR[i] })), 0, dur)
+  A(el, [{ rotate: '0deg' }, { rotate: `${(r > .5 ? 1 : -1) * 40}deg` }], 0, 28, 'linear')
+  if (opt.pop !== false) A(el, [{ scale: 0 }, { scale: 1 }], start, 1.4, E.spring)
+}
+
+function emoji(parent, name, cx, cy, size, start, opt = {}) {
+  if (typeof parent === 'string') parent = $(parent)
+  const w = document.createElement('div'); w.className = 'emo'
+  w.style.cssText = `left:${cx - size / 2}px;top:${cy - size / 2}px;width:${size}px;height:${size}px`
+  const img = new Image(); img.src = `assets/img/${name}.png`; img.alt = ''; w.appendChild(img); parent.appendChild(w)
+  const r0 = (rnd() - .5) * 80
+  A(img, [{ transform: `scale(0) rotate(${r0}deg)` }, { transform: 'scale(1) rotate(0deg)' }], start, 1.3, E.bouncy)
+  const ph = rnd() * 6.28, amp = opt.amp ?? 14, drift = opt.drift ?? 0, t0 = opt.t0 ?? start
+  tick((t) => {
+    const dt = t - t0
+    w.style.translate = `${-dt * drift}px ${Math.sin(t * 1.6 + ph) * amp}px`
+    w.style.rotate = `${Math.sin(t * 1.15 + ph) * 7}deg`
+  })
+  if (opt.out != null) OUT(img, [{ transform: 'scale(1) rotate(0deg)' }, { transform: `scale(0) rotate(${-r0}deg)` }], opt.out, .45, E.inQ)
+  return w
+}
+
+// ================================================================== SCENE 1
+scene('#s1', 0, B2 + 1.0)
+blob('#b11', 0.05); blob('#b12', 0.2); blob('#b13', 0.32)
+// mascot springs in (squash & stretch), then slides left for the logo
+A('#mascotInner', [
+  { transform: 'translateY(340px) scale(.25, .12)', opacity: 0, offset: 0 },
+  { opacity: 1, offset: .12 },
+  { transform: 'translateY(0) scale(1, 1)', opacity: 1 },
+], 0.1, 1.5, E.bouncy)
+A('#mascotWrap', [{ transform: 'translateX(0) scale(1)' }, { transform: 'translateX(-430px) scale(1)' }], 2.15, 1.25, E.spring)
+OUT('#mascotWrap', [{ transform: 'translateX(-430px) scale(1)' }, { transform: 'translateX(-430px) scale(.93)' }], B2 - 0.25, .35, E.soft)
+// "Привет!" bubble
+A('#hello', [{ transform: 'scale(0) rotate(-24deg)' }, { transform: 'scale(1) rotate(-5deg)' }], 0.85, 1.2, E.bouncy)
+splitChars($('#hello')).forEach((c, i) => A(c, [{ transform: 'translateY(30px) scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], 0.98 + i * .035, .8, E.spring))
+tick((t) => { $('#hello').style.translate = `0 ${Math.sin(t * 2.2) * 6}px` })
+// logo: orange clay bar wipes in, retracts and reveals the logo
+A('#logoBar', [{ clipPath: 'inset(0 100% 0 0 round 120px)' }, { clipPath: 'inset(0 0% 0 0 round 120px)' }], 2.3, .5, E.inOut)
+OUT('#logoBar', [{ clipPath: 'inset(0 0 0 0% round 120px)' }, { clipPath: 'inset(0 0 0 100% round 120px)' }], 2.82, .55, E.inOut)
+A('#logo1', [{ opacity: 0, transform: 'scale(.92) translateX(-30px)' }, { opacity: 1, transform: 'scale(.92) translateX(-30px)', offset: .01 }, { opacity: 1, transform: 'scale(1) translateX(0)' }], 2.8, 1.0, E.out)
+A('#logoSub .pill', [{ transform: 'translateY(60px) scale(.5)', opacity: 0 }, { transform: 'none', opacity: 1 }], 3.2, 1.1, E.spring)
+// floating 3D emoji (parallax drift)
+emoji('#s1emo', 'balloon', 300, 260, 190, .35, { drift: 10 })
+emoji('#s1emo', 'party', 1740, 230, 170, .5, { drift: 18 })
+emoji('#s1emo', 'gift', 1840, 480, 130, .62, { drift: 8 })
+emoji('#s1emo', 'confetti', 170, 640, 130, .45, { drift: 6, amp: 10 })
+emoji('#s1emo', 'cake', 1200, 975, 130, .75, { drift: 22 })
+emoji('#s1emo', 'star', 1090, 100, 100, .55, { drift: 8, amp: 8 })
+emoji('#s1emo', 'sparkles', 760, 950, 110, .9, { drift: 12, amp: 9 })
+
+// ================================================================== WIPE 1 (circle from mascot)
+scene('#w1', B2, B2 + 1.2)
+A('#w1', [{ clipPath: 'circle(0px at 530px 560px)' }, { clipPath: 'circle(2300px at 530px 560px)' }], B2, .95, E.inOut)
+A('#s2', [{ clipPath: 'circle(0px at 530px 560px)' }, { clipPath: 'circle(2300px at 530px 560px)' }], B2 + .14, .95, E.inOut)
+
+// ================================================================== SCENE 2: kinetic type
+scene('#s2', B2, B3 + 1.0)
+blob('#b21', B2 + .3); blob('#b22', B2 + .4)
+tick((t) => { $('#dots2').style.translate = `${-(t - B2) * 14}px ${-(t - B2) * 8}px` })
+const T2 = B2 + .45
+splitChars($('#l1')).forEach((c, i) => A(c, [{ transform: 'translateY(150px) rotate(16deg) scale(.3)', opacity: 0 }, { transform: 'none', opacity: 1 }], T2 + i * .04, 1.2, E.bouncy))
+splitChars($('#l2')).forEach((c, i) => A(c, [{ transform: 'translateY(150px) rotate(-14deg) scale(.3)', opacity: 0 }, { transform: 'none', opacity: 1 }], T2 + .3 + i * .035, 1.2, E.bouncy))
+// "Уфа." slams with an impact ring + camera shake
+const tUfa = T2 + .85
+A('#pUfa', [{ transform: 'scale(2.8) rotate(-14deg)', opacity: 0 }, { transform: 'scale(1) rotate(-4deg)', opacity: 1 }], tUfa, .42, 'cubic-bezier(.5,0,.75,0)')
+A('#pUfa', [{ rotate: '0deg', scale: 1 }, { rotate: '0deg', scale: 1.08, offset: .25 }, { rotate: '0deg', scale: 1 }], tUfa + .42, .8, E.spring)
+A('#s2c', [{ translate: '0 0' }, { translate: '-16px 10px' }, { translate: '13px -8px' }, { translate: '-8px 6px' }, { translate: '5px -3px' }, { translate: '-2px 1px' }, { translate: '0 0' }], tUfa + .4, .42, 'linear')
+// ring centered on the Уфа pill — measured after layout
+const tAnim = tUfa + .4
+A('#pAnim', [{ clipPath: 'inset(0 100% 0 0 round 100px)', transform: 'rotate(0deg)' }, { clipPath: 'inset(0 0% 0 0 round 100px)', transform: 'rotate(2deg)' }], tAnim, .85, E.out)
+splitChars($('#pAnim')).forEach((c, i) => A(c, [{ transform: 'translateX(-80px)', opacity: 0 }, { transform: 'none', opacity: 1 }], tAnim + .05 + i * .03, .9, E.spring))
+const tTag = tAnim + .5
+A('#tagPill', [{ transform: 'scaleX(.15) scaleY(.6)', opacity: 0 }, { transform: 'none', opacity: 1 }], tTag, 1.0, E.spring)
+splitWords($('#tagPill')).forEach((w, i) => A(w, [{ transform: 'translateY(34px)', opacity: 0 }, { transform: 'none', opacity: 1 }], tTag + .12 + i * .06, .8, E.spring))
+emoji('#s2emo', 'sparkles', 190, 200, 150, T2 + .2, { drift: 12 })
+emoji('#s2emo', 'confetti', 1740, 190, 160, T2 + .35, { drift: 20 })
+emoji('#s2emo', 'rocket', 120, 600, 130, T2 + 1.1, { drift: 8 })
+emoji('#s2emo', 'lollipop', 1820, 520, 120, T2 + 1.3, { drift: 14 })
+emoji('#s2emo', 'star', 170, 930, 120, T2 + 1.6, { drift: 10 })
+emoji('#s2emo', 'balloon', 1780, 920, 160, T2 + 1.8, { drift: 16 })
+// push out with the wipe
+OUT('#s2c', [{ transform: 'translateX(0)' }, { transform: 'translateX(-260px)' }], B3, .8, E.inOut)
+
+// ================================================================== WIPE 2 (layered diagonal)
+const diag = (x) => `polygon(${x}px 0px, 2700px 0px, 2700px 1080px, ${x - 460}px 1080px)`
+;[['#w2a', 0], ['#w2b', .09], ['#s3', .18]].forEach(([s, d]) => {
+  if (s !== '#s3') scene(s, B3, B3 + 1.1)
+  A(s, [{ clipPath: diag(2420) }, { clipPath: diag(0) }], B3 + d, .8, E.inOut)
+})
+
+// ================================================================== SCENE 3: photo collage
+scene('#s3', B3, B4 + .9)
+tick((t) => { $('#dots3').style.translate = `${-(t - B3) * 20}px 0` })
+const cards = [
+  // photo, cx, cy, imgW, imgH, rot, depth, caption
+  ['s-neon', 240, 300, 330, 230, -7, .55, ''],
+  ['s-disco', 1700, 290, 340, 230, 6, .55, ''],
+  ['about-1', 690, 880, 250, 330, 5, .55, ''],
+  ['s-huggy', 1290, 900, 330, 240, -5, .55, ''],
+  ['g-unicorn', 430, 610, 300, 380, -8, 1, 'Гигантский пузырь'],
+  ['g-transformer', 1500, 610, 300, 370, 7, 1, 'Робот-трансформер'],
+  ['s-rainbow', 140, 930, 330, 220, -9, 1.5, ''],
+  ['s-barbie', 1790, 920, 300, 300, 8, 1.5, ''],
+  ['s-gold', 960, 600, 500, 330, 2.5, 1.3, 'Золотой дождь из конфетти'],
+]
+const plane = $('#s3plane')
+const order = [4, 5, 0, 1, 8, 2, 3, 6, 7]
+cards.forEach(([ph, cx, cy, iw, ih, rot, depth, cap], idx) => {
+  const sc = depth < .7 ? .82 : depth > 1.4 ? 1.05 : 1
+  const W = iw + 36, H = ih + 18 + (cap ? 62 : 18)
+  const pos = document.createElement('div'); pos.className = 'cpos'
+  pos.style.cssText = `left:${cx - W / 2}px;top:${cy - H / 2}px;width:${W}px;height:${H}px;z-index:${Math.round(depth * 10)};scale:${sc}`
+  pos.innerHTML = `<div class="ctilt"><div class="polaroid"><img src="assets/photos/${ph}.webp" style="height:${ih}px" alt="">${cap ? `<div class="cap">${cap}</div>` : ''}</div></div>`
+  plane.appendChild(pos)
+  const card = $('.polaroid', pos), tilt = $('.ctilt', pos)
+  const k = order.indexOf(idx), st = B3 + .38 + k * .085
+  const fromX = (cx - 960) * .6, r0 = (rnd() - .5) * 70
+  A(card, [
+    { transform: `translate3d(${fromX}px, 1150px, 0) rotateX(62deg) rotateZ(${r0}deg) scale(.7)` },
+    { transform: `translate3d(0,0,0) rotateX(0deg) rotateZ(${rot}deg) scale(1)` },
+  ], st, 1.5, E.spring)
+  const ph0 = rnd() * 6.28
+  tick((t) => {
+    const dt = t - B3
+    pos.style.translate = `${(110 - dt * 55) * depth}px ${Math.sin(t * 1.1 + ph0) * 8 * depth}px`
+    tilt.style.transform = `rotateY(${Math.sin(t * 1.3 + ph0) * 9}deg) rotateX(${Math.cos(t * 1.05 + ph0) * 7}deg)`
+  })
+})
+A('#s3title .pill', [{ transform: 'translateY(-160px) scale(.6) rotate(-6deg)' }, { transform: 'translateY(0) scale(1) rotate(-2deg)' }], B3 + .55, 1.3, E.spring)
+OUT('#s3title .pill', [{ transform: 'translateY(0) scale(1) rotate(-2deg)' }, { transform: 'translateY(-220px) scale(.8) rotate(-2deg)' }], B4 - .05, .45, E.inQ)
+// zoom-through into the hero card
+OUT('#s3zoom', [{ transform: 'scale(1)', opacity: 1, filter: 'blur(0px)' }, { transform: 'scale(1.9)', opacity: 1, filter: 'blur(1px)', offset: .55 }, { transform: 'scale(4.2)', opacity: 0, filter: 'blur(6px)' }], B4, .7, E.inQ)
+
+// ================================================================== SCENE 4: programs
+scene('#s4', B4 + .2, B5 + 1.0)
+A('#s4', [{ opacity: 0 }, { opacity: 1 }], B4 + .28, .35, E.soft)
+A('#s4in', [{ transform: 'scale(.72)' }, { transform: 'scale(1)' }], B4 + .28, 1.0, E.out)
+blob('#b41', B4 + .35); blob('#b42', B4 + .45)
+splitChars($('#s4title')).forEach((c, i) => A(c, [{ transform: 'translateY(90px) scale(.5)', opacity: 0 }, { transform: 'none', opacity: 1 }], B4 + .4 + i * .025, 1.0, E.spring))
+const programs = [
+  ['Стандарт', 'balloon', 4200, 'var(--p-lime)'],
+  ['Разукрашки', 'palette', 4600, 'var(--p-pink)'],
+  ['Вау-шоу', 'starstruck', 7000, 'var(--p-butter)'],
+  ['Бомба', 'bomb', 6800, 'var(--p-peach)'],
+  ['Челендж-пати', 'exploding', 5500, 'var(--p-sky)'],
+  ['Неоновая вечеринка', 'discoball', 7000, 'var(--p-lilac)'],
+]
+const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+const grid = $('#grid')
+programs.forEach(([name, ic, price, bg], i) => {
+  const col = i % 3, row = Math.floor(i / 3)
+  const x = 106 + col * 584, y = 250 + row * 384
+  const el = document.createElement('div'); el.className = 'pcard'
+  el.style.cssText = `left:${x}px;top:${y}px`
+  el.innerHTML = `<div class="pc" style="background:${bg}"><div class="pclip"><div class="shine"></div></div>
+    <div class="num">0${i + 1}</div><div class="ic"><img src="assets/img/${ic}.png" alt=""></div>
+    <div class="name">${name}</div>
+    <div class="price"><span class="from">от</span><span class="val">${fmt(price)}</span><span class="rub">₽</span></div></div>`
+  grid.appendChild(el)
+  const pc = $('.pc', el), st = B4 + .55 + (col + row) * .1 + row * .05
+  A(pc, [{ transform: 'translateY(300px) rotateX(-75deg) scale(.8)', opacity: 0, offset: 0 }, { opacity: 1, offset: .08 }, { transform: 'translateY(0) rotateX(0deg) scale(1)', opacity: 1 }], st, 1.5, E.spring)
+  A($('.ic', el), [{ transform: 'scale(0) rotate(-50deg)' }, { transform: 'scale(1) rotate(-8deg)' }], st + .28, 1.3, E.bouncy)
+  A($('.shine', el), [{ transform: 'translateX(-300px) skewX(-18deg)' }, { transform: 'translateX(760px) skewX(-18deg)' }], B4 + 2.6 + i * .08, .9, E.inOutS)
+  const val = $('.val', el), cs = st + .35, ph0 = rnd() * 6.28
+  tick((t) => {
+    const p = easeOutExpo(prog(t, cs, 1.3))
+    val.textContent = fmt(Math.round(price * p / 10) * 10)
+    el.style.transform = `perspective(1400px) rotateX(${Math.sin(t * 1.2 + ph0) * 5}deg) rotateY(${Math.cos(t * .95 + ph0) * 7}deg)`
+  })
+  OUT(pc, [{ transform: 'translateY(0) scale(1)', opacity: 1 }, { transform: 'translateY(60px) scale(.9)', opacity: 1 }], B5 - .05 + (2 - col) * .03, .5, E.inQ)
+})
+
+// ================================================================== WIPE 4: morphing clay blob
+scene('#w4', B5, B5 + 1.1)
+blob('#w4', 0, { pop: false })
+A('#w4', [{ transform: 'scale(0)' }, { transform: 'scale(1.06)' }], B5, .85, E.inOut)
+
+// ================================================================== SCENE 5: add-ons orbit
+const S5 = B5 + .82
+scene('#s5', S5, B6 + 1.0)
+blob('#b51', S5); blob('#b52', S5 + .1)
+A('#orbit', [{ transform: 'scale(.2)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], S5 + .05, 1.2, E.out)
+A('#orb1', [{ strokeDashoffset: 0 }, { strokeDashoffset: -220 }], S5, 6, 'linear')
+A('#orb2', [{ strokeDashoffset: 0 }, { strokeDashoffset: 180 }], S5, 6, 'linear')
+splitChars($('#s5title')).forEach((c, i) => A(c, [{ transform: 'translateY(100px) rotate(10deg) scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], S5 + .1 + i * .03, 1.1, E.bouncy))
+OUT('#s5title', [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.2)', opacity: 0 }], B6 - .1, .4, E.inQ)
+const addons = [
+  ['bubbles', 'Шоу мыльных пузырей', 'var(--p-sky)'],
+  ['paintbrush', 'Мастер-классы', 'var(--p-butter)'],
+  ['palette', 'Аквагрим', 'var(--p-pink)'],
+  ['camera', 'Фотозона', 'var(--p-lilac)'],
+  ['puzzle', 'Квесты', 'var(--p-lime)'],
+  ['testtube', 'Химическое шоу', 'var(--p-peach)'],
+]
+addons.forEach(([ic, label, bg], i) => {
+  const el = document.createElement('div'); el.className = 'addon'
+  el.innerHTML = `<div class="ai"><img src="assets/img/${ic}.png" alt=""></div><div class="al pill n" style="background:${bg}">${label}</div>`
+  $('#addons').appendChild(el)
+  const st = S5 + .2 + i * .09, ph0 = rnd() * 6.28
+  const ai = $('.ai', el), al = $('.al', el)
+  tick((t) => {
+    const p = prog(t, st, 1.3), r = sp42(p)
+    const e = easeInCubic(prog(t, B6 - .2, .45))
+    const ang = (-90 + i * 60 + (t - S5) * 8) * Math.PI / 180
+    const rr = r * (1 - e)
+    const x = 960 + 780 * rr * Math.cos(ang), y = 530 + 360 * rr * Math.sin(ang)
+    const depth = .86 + .18 * (Math.sin(ang) + 1) / 2
+    const s = sp55(prog(t, st, 1.1)) * depth * (1 - e)
+    el.style.transform = `translate(${x}px, ${y}px) scale(${Math.max(0, s)})`
+    el.style.zIndex = Math.round(y)
+    ai.style.transform = `translateY(${Math.sin(t * 2 + ph0) * 10}px) rotate(${Math.sin(t * 1.4 + ph0) * 8}deg)`
+    al.style.opacity = clamp((p - .15) * 3)
+  })
+})
+
+// ================================================================== CURTAIN (staggered clay columns)
+scene('#curtain', B6, B6 + 1.25)
+for (let i = 0; i < 6; i++) {
+  const c = document.createElement('div'); c.className = 'col'
+  c.style.left = `${i * 320 - 5}px`
+  $('#curtain').appendChild(c)
+  A(c, [{ transform: 'translateY(-1400px)' }, { transform: 'translateY(-20px)' }], B6 + Math.abs(i - 2.5) * .06, .8, E.inOut)
+}
+
+// ================================================================== SCENE 6: safety + review
+const S6 = B6 + 1.05
+scene('#s6', S6, B7 + 1.0)
+blob('#b61', S6); blob('#b62', S6 + .1)
+A('#safe', [{ transform: 'translateX(-260px) rotateY(38deg) scale(.85)', opacity: 0, offset: 0 }, { opacity: 1, offset: .1 }, { transform: 'none', opacity: 1 }], S6, 1.4, E.spring)
+A('#rev', [{ transform: 'translateX(260px) rotateY(-38deg) scale(.85)', opacity: 0, offset: 0 }, { opacity: 1, offset: .1 }, { transform: 'none', opacity: 1 }], S6 + .12, 1.4, E.spring)
+A('#shieldIc img', [{ transform: 'scale(0) rotate(-40deg)' }, { transform: 'scale(1) rotate(-6deg)' }], S6 + .3, 1.3, E.bouncy)
+A('#speechIc img', [{ transform: 'scale(0) rotate(40deg)' }, { transform: 'scale(1) rotate(6deg)' }], S6 + .45, 1.3, E.bouncy)
+splitChars($('#safe .hd')).forEach((c, i) => A(c, [{ transform: 'translateY(50px)', opacity: 0 }, { transform: 'none', opacity: 1 }], S6 + .25 + i * .015, .8, E.spring))
+$$('#safe .srow').forEach((r, i) => {
+  A(r, [{ transform: 'translateX(-70px)', opacity: 0 }, { transform: 'none', opacity: 1 }], S6 + .55 + i * .16, 1.0, E.spring)
+  A($('img', r), [{ transform: 'scale(0) rotate(-60deg)' }, { transform: 'scale(1) rotate(0deg)' }], S6 + .62 + i * .16, 1.1, E.bouncy)
+})
+A('#revChip', [{ transform: 'scale(0)' }, { transform: 'scale(1) rotate(-2deg)' }], S6 + .35, 1.0, E.bouncy)
+for (let i = 0; i < 5; i++) {
+  const img = new Image(); img.src = 'assets/img/star.png'; img.alt = ''; $('#stars').appendChild(img)
+  A(img, [{ transform: 'scale(0) rotate(-120deg)' }, { transform: 'scale(1) rotate(0deg)' }], S6 + .5 + i * .085, 1.1, E.bouncy)
+}
+splitWords($('#quote')).forEach((w, i) => A(w, [{ transform: 'translateY(36px)', opacity: 0, filter: 'blur(4px)' }, { transform: 'none', opacity: 1, filter: 'blur(0px)' }], S6 + .75 + i * .045, .8, E.outQ))
+A('#author', [{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], S6 + 1.5, .8, E.outQ)
+tick((t) => {
+  $('#safe').style.translate = `0 ${Math.sin(t * 1.2) * 6}px`
+  $('#rev').style.translate = `0 ${Math.sin(t * 1.2 + 1.7) * 6}px`
+  $('#safe').style.rotate = `y ${Math.sin(t * .9) * 3}deg`
+  $('#rev').style.rotate = `y ${Math.sin(t * .9 + 2) * 3}deg`
+})
+OUT('#s6in', [{ transform: 'scale(1)' }, { transform: 'scale(.92)' }], B7 - .1, .6, E.inOutS)
+
+// ================================================================== SCENE 7: outro
+scene('#s7', B7, DURATION + 1)
+A('#s7', [{ clipPath: 'inset(42% 44% 42% 44% round 140px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px)' }], B7, .85, E.inOut)
+blob('#b71', B7 + .3); blob('#b72', B7 + .4)
+tick((t) => { $('#dots7').style.translate = `${-(t - B7) * 14}px ${-(t - B7) * 8}px` })
+const S7 = B7 + .45
+A('#disc', [{ transform: 'scale(0) rotate(-20deg)' }, { transform: 'scale(1) rotate(0deg)' }], S7, 1.4, E.bouncy)
+A('#disc .mv', [{ transform: 'translateY(420px)' }, { transform: 'translateY(0)' }], S7 + .2, 1.4, E.spring)
+$('#vid2').dataset.start = String(S7 + .2)
+A('#logo7', [{ clipPath: 'inset(-10% 100% -10% -10%)', transform: 'translateX(-40px)' }, { clipPath: 'inset(-10% -10% -10% -10%)', transform: 'translateX(0)' }], S7 + .35, 1.0, E.out)
+splitChars($('#cta')).forEach((c, i) => A(c, [{ transform: 'translateY(110px) rotate(12deg) scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], S7 + .6 + i * .035, 1.2, E.bouncy))
+A('#phoneBtn', [{ transform: 'scale(0) rotate(-8deg)' }, { transform: 'scale(1) rotate(0deg)' }], S7 + 1.05, 1.3, E.bouncy)
+A('#chipWa', [{ transform: 'translateX(-90px)', opacity: 0 }, { transform: 'none', opacity: 1 }], S7 + 1.3, 1.0, E.spring)
+A('#chipAd', [{ transform: 'translateX(-90px)', opacity: 0 }, { transform: 'none', opacity: 1 }], S7 + 1.42, 1.0, E.spring)
+emoji('#s7emo', 'party', 1800, 140, 150, S7 + .7, { amp: 10 })
+emoji('#s7emo', 'balloon', 130, 150, 170, S7 + .5, { amp: 12 })
+emoji('#s7emo', 'confetti', 1790, 960, 130, S7 + .9, { amp: 10 })
+emoji('#s7emo', 'heart', 1840, 480, 110, S7 + 1.1, { amp: 10 })
+emoji('#s7emo', 'sparkles', 940, 160, 110, S7 + .8, { amp: 10 })
+// pulsing CTA (settles before the final held frame)
+const pulseFrom = S7 + 2.0, pulseTo = DURATION - .7
+let btnW = 0, btnH = 0
+tick((t) => {
+  const btn = $('#phoneBtn')
+  if (!btnW) { btnW = btn.offsetWidth; btnH = btn.offsetHeight; for (const r of $$('.ring')) { r.style.width = btnW + 'px'; r.style.height = btnH + 'px' } }
+  const env = clamp((t - pulseFrom) / .3) * clamp((pulseTo - t) / .4)
+  btn.style.scale = String(1 + .035 * env * Math.sin((t - pulseFrom) * Math.PI * 2 / 1.1) ** 2)
+  ;[['#ringA', 0], ['#ringB', .55]].forEach(([s, off]) => {
+    const r = $(s), ph = (((t - pulseFrom - off) / 1.1) % 1 + 1) % 1
+    const live = t > pulseFrom + off && t < pulseTo
+    r.style.opacity = live ? String((1 - ph) * .7 * env) : '0'
+    r.style.transform = `scale(${1 + ph * .22}, ${1 + ph * .7})`
+  })
+})
+
+// ------------------------------------------------------------------ Уфа impact ring (needs layout)
+function placeRing() {
+  const p = $('#pUfa'), s = $('#s2c')
+  const pr = p.getBoundingClientRect(), sr = s.getBoundingClientRect()
+  const k = 1920 / sr.width
+  const cx = (pr.left + pr.width / 2 - sr.left) * k, cy = (pr.top + pr.height / 2 - sr.top) * k
+  const ring = $('#ring2'); ring.style.left = cx - 150 + 'px'; ring.style.top = cy - 150 + 'px'
+}
+A('#ring2', [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(.5)', opacity: .9, offset: .05 }, { transform: 'scale(3.2)', opacity: 0 }], tUfa + .38, .9, E.out)
+
+// ------------------------------------------------------------------ video seeking
+const vids = [$('#vid1'), $('#vid2')]
+function seekVideo(v, t) {
+  const start = Number(v.dataset.start || 0)
+  const d = v.duration || 5.1667
+  let local = Math.max(0, t - start) % d
+  local = Math.min(local + 0.001, d - 0.02)
+  if (Math.abs(v.currentTime - local) < 0.0005 && v.readyState >= 2) return Promise.resolve()
+  return new Promise((res) => {
+    const done = () => { v.removeEventListener('seeked', done); clearTimeout(to); res() }
+    const to = setTimeout(done, 4000)
+    v.addEventListener('seeked', done)
+    v.currentTime = local
+  })
+}
+const raf2 = () => new Promise((r) => { let n = 0; const k = () => (++n >= 2 ? r() : requestAnimationFrame(k)); requestAnimationFrame(k); setTimeout(r, 120) })
+
+async function seek(t) {
+  for (const a of anims) a.currentTime = t * 1000
+  for (const f of tickers) f(t)
+  const visibleVids = vids.filter((v) => getComputedStyle(v).visibility === 'visible')
+  await Promise.all(visibleVids.map((v) => seekVideo(v, t)))
+  await raf2()
+}
+
+async function boot() {
+  await document.fonts.load('900 60px Unbounded', 'Привет Уфа 4 200 ₽')
+  await document.fonts.load('900 40px Nunito', 'Аниматоры')
+  await document.fonts.ready
+  await Promise.all([...document.images].map((im) => im.decode().catch(() => {})))
+  await Promise.all(vids.map((v) => v.readyState >= 2 ? 0 : new Promise((r) => { v.addEventListener('loadeddata', r, { once: true }); v.load() })))
+  placeRing()
+  window.PROMO.ready = true
+  if (!/render=1/.test(location.search)) {
+    // live preview: scale stage to window and loop
+    const st = $('#stage'), fit = () => { st.style.scale = Math.min(innerWidth / 1920, innerHeight / 1080) }
+    fit(); addEventListener('resize', fit)
+    const t0 = performance.now()
+    let busy = false
+    const loop = () => {
+      if (!busy) { busy = true; seek(((performance.now() - t0) / 1000) % DURATION).then(() => { busy = false }) }
+      requestAnimationFrame(loop)
+    }
+    loop()
+  }
+}
+window.PROMO = { seek, duration: DURATION, ready: false }
+boot()
+})()
+</script>
+</body>
+</html>

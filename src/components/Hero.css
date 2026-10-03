@@ -75,6 +75,15 @@
   max-width: 600px;
   justify-self: center;
 }
+/* компьютер: маскот крупнее, выходит за колонку */
+@media (min-width: 901px) {
+  .hero__visual {
+    width: 132%;
+    max-width: 820px;
+    margin: -10% -20% -10% -10%;
+    justify-self: end;
+  }
+}
 .hero__mascot {
   position: absolute;
   inset: 0;

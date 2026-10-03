@@ -21,12 +21,14 @@
   border-radius: clamp(18px, 2.6vw, 32px);
   background: var(--c-lime);
 }
+.promo__below {
+  display: flex;
+  justify-content: center;
+  min-height: 64px;
+  margin-top: clamp(18px, 2.4vw, 28px);
+}
 .promo__sound {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  translate: -50% -50%;
-  z-index: 2;
+  position: relative;
 }
 .promo__pulse {
   position: absolute;

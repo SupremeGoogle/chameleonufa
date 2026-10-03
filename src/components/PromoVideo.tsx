@@ -94,6 +94,20 @@ export function PromoVideo() {
             <source src={`${base}video/promo.mp4`} type="video/mp4" />
           </video>
 
+          <div className="promo__bar">
+            <button className="promo__ctl" onClick={togglePlay} aria-label={playing ? 'Пауза' : 'Воспроизвести'}>
+              {playing ? <Pause size={18} /> : <Play size={18} />}
+            </button>
+            <div className="promo__track" onClick={seek} role="slider" aria-label="Перемотка" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
+              <span style={{ width: `${progress * 100}%` }} />
+            </div>
+            <button className="promo__ctl" onClick={toggleMute} aria-label={muted ? 'Включить звук' : 'Выключить звук'}>
+              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+          </div>
+        </motion.div>
+
+        <div className="promo__below">
           <AnimatePresence>
             {muted && (
               <motion.button
@@ -111,19 +125,7 @@ export function PromoVideo() {
               </motion.button>
             )}
           </AnimatePresence>
-
-          <div className="promo__bar">
-            <button className="promo__ctl" onClick={togglePlay} aria-label={playing ? 'Пауза' : 'Воспроизвести'}>
-              {playing ? <Pause size={18} /> : <Play size={18} />}
-            </button>
-            <div className="promo__track" onClick={seek} role="slider" aria-label="Перемотка" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
-              <span style={{ width: `${progress * 100}%` }} />
-            </div>
-            <button className="promo__ctl" onClick={toggleMute} aria-label={muted ? 'Включить звук' : 'Выключить звук'}>
-              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            </button>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )
